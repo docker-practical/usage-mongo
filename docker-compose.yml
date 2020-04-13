@@ -1,0 +1,29 @@
+version: '3.6'
+services:
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root # set root username
+      MONGO_INITDB_ROOT_PASSWORD: root # set root password
+      MONGO_INITDB_DATABASE: dbsample # database name you want to make, same like db-init/init.js
+    volumes:
+      # - ./mongoDB/mongo-volume:/data/db => error on window, https://github.com/docker-library/mongo/issues/232#issuecomment-355423692
+      - docker-data:/data/db
+      - ./mongoDB/db-init/:/docker-entrypoint-initdb.d # copy file all file in db-init to folder docker-entrypoint-initdb.d
+    ports:
+      - '27020:27017'
+  mongo-express:
+    image: mongo-express
+    depends_on:
+      - mongodb
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_PORT: 27017 # port of inside mongo container
+       
+volumes:
+  docker-data:
+    name: volume-proj-usage-mongo # create a volumn, because cannot mapping volume in this case
